@@ -127,6 +127,13 @@
     .btn-primary { background: var(--primary); color: #fff; flex: 2; }
     .btn-primary:hover { background: var(--primary-dark); }
     .btn-secondary { background: #e2e8f0; color: #4a5568; flex: 1; }
+    .btn-export {
+      background: var(--success);
+      color: #fff;
+      width: 100%;
+      margin-top: 16px;
+    }
+    .btn-export:hover { background: #2e7031; }
     .stats-bar {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -292,6 +299,7 @@
         </tbody>
       </table>
     </div>
+    <button class="btn btn-export" onclick="exportCSV()">匯出 CSV（Excel／Notion 可用）</button>
   </section>
 
   <footer>⚠️ 資料會即時寫入後端 Google 試算表，請妥善保管連結</footer>
@@ -426,12 +434,33 @@
         body: JSON.stringify({ action: 'delete', id: id })
       });
       const data = await res.json();
+      currentData = data;
       renderTable(data);
     } catch (err) {
       alert('刪除失敗！');
     } finally {
       showLoading(false);
     }
+  }
+
+  function exportCSV() {
+    if (!currentData || currentData.length === 0) {
+      alert('目前沒有資料可匯出');
+      return;
+    }
+    const header = ['姓名', '身分證字號', '電話', '出生年月日', '年齡', '教育程度', '登記時間'];
+    const rows = currentData.map(item => {
+      const timeStr = item.createdAt ? new Date(item.createdAt).toLocaleString('zh-TW', { hour12: false }) : '';
+      return [item.name || '', item.idnum || '', item.phone || '', item.birthdate || '', item.age || '', item.edu || '', timeStr];
+    });
+    const csv = '\uFEFF' + [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `社區篩檢名單_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 </script>
 
