@@ -134,6 +134,14 @@
       margin-top: 16px;
     }
     .btn-export:hover { background: #2e7031; }
+    .btn-clear-all {
+      background: #fff;
+      color: var(--danger);
+      border: 1.5px solid #fecaca;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .btn-clear-all:hover { background: #fee2e2; }
     .stats-bar {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -300,6 +308,7 @@
       </table>
     </div>
     <button class="btn btn-export" onclick="exportCSV()">匯出 CSV（Excel／Notion 可用）</button>
+    <button class="btn btn-clear-all" onclick="clearAllData()">清除全部資料</button>
   </section>
 
   <footer>⚠️ 資料會即時寫入後端 Google 試算表，請妥善保管連結</footer>
@@ -438,6 +447,28 @@
       renderTable(data);
     } catch (err) {
       alert('刪除失敗！');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  async function clearAllData() {
+    if (!currentData || currentData.length === 0) {
+      alert('目前沒有資料可清除');
+      return;
+    }
+    if (!confirm(`確定要清除全部 ${currentData.length} 筆資料嗎？此動作無法復原，建議清除前先匯出 CSV 備份。`)) return;
+    showLoading(true);
+    try {
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'clear' })
+      });
+      const data = await res.json();
+      currentData = data;
+      renderTable(data);
+    } catch (err) {
+      alert('清除失敗，請確認後端 Apps Script 是否支援 clear 動作！');
     } finally {
       showLoading(false);
     }
