@@ -1,717 +1,97 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>社區篩檢登記系統</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --paper:#F6F4EF;
-    --card:#FFFFFF;
-    --ink:#1E2B27;
-    --ink-soft:#5C6B65;
-    --line:#DCD8CC;
-    --teal:#1F5C57;
-    --teal-deep:#123D3A;
-    --teal-soft:#E2ECE9;
-    --amber:#B8823B;
-    --amber-soft:#F4E7D3;
-    --coral:#B5473F;
-    --coral-soft:#F6E3E0;
-    --radius:14px;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Noto Sans TC',-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  .app{
-    max-width:480px;
-    margin:0 auto;
-    min-height:100vh;
-    background:var(--paper);
-    display:flex;
-    flex-direction:column;
-  }
-  header{
-    padding:22px 20px 16px;
-    background:var(--teal-deep);
-    color:#fff;
-    position:sticky;
-    top:0;
-    z-index:10;
-  }
-  header .eyebrow{
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:#9FC4BE;
-    margin-bottom:6px;
-  }
-  header h1{
-    margin:0;
-    font-size:21px;
-    font-weight:900;
-    letter-spacing:0.02em;
-  }
-  header .sub{
-    margin-top:4px;
-    font-size:12.5px;
-    color:#B9D6D1;
-  }
-  nav.tabs{
-    display:flex;
-    gap:6px;
-    padding:10px 14px 0;
-    background:var(--teal-deep);
-    position:sticky;
-    top:78px;
-    z-index:9;
-  }
-  nav.tabs button{
-    flex:1;
-    border:none;
-    background:rgba(255,255,255,0.08);
-    color:#CFE4E0;
-    padding:10px 6px;
-    font-size:13px;
-    font-weight:500;
-    border-radius:10px 10px 0 0;
-    font-family:inherit;
-    cursor:pointer;
-    transition:background .15s;
-  }
-  nav.tabs button.active{
-    background:var(--paper);
-    color:var(--teal-deep);
-    font-weight:700;
-  }
-  main{
-    flex:1;
-    padding:18px 16px 100px;
-  }
-  .panel{display:none;}
-  .panel.active{display:block;animation:fade .2s ease;}
-  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
-
-  .card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:18px;
-    margin-bottom:14px;
-  }
-  label{
-    display:block;
-    font-size:12.5px;
-    font-weight:700;
-    color:var(--teal-deep);
-    margin-bottom:6px;
-    letter-spacing:0.01em;
-  }
-  .field{margin-bottom:16px;}
-  input[type=text], input[type=number], select{
-    width:100%;
-    padding:12px 12px;
-    border:1.5px solid var(--line);
-    border-radius:10px;
-    font-size:15px;
-    font-family:inherit;
-    background:#FDFCFA;
-    color:var(--ink);
-  }
-  input:focus, select:focus{
-    outline:none;
-    border-color:var(--teal);
-    background:#fff;
-  }
-  .row2{display:flex;gap:10px;}
-  .row2 .field{flex:1;}
-  .hint{font-size:11.5px;color:var(--ink-soft);margin-top:5px;}
-
-  .btn-primary{
-    width:100%;
-    padding:14px;
-    background:var(--teal);
-    color:#fff;
-    border:none;
-    border-radius:10px;
-    font-size:15.5px;
-    font-weight:700;
-    font-family:inherit;
-    cursor:pointer;
-    letter-spacing:0.02em;
-  }
-  .btn-primary:active{background:var(--teal-deep);}
-  .btn-ghost{
-    width:100%;
-    padding:11px;
-    background:transparent;
-    color:var(--coral);
-    border:1.5px solid var(--coral-soft);
-    border-radius:10px;
-    font-size:13.5px;
-    font-weight:600;
-    font-family:inherit;
-    cursor:pointer;
-    margin-top:8px;
-  }
-
-  .summary-grid{display:flex;gap:10px;margin-bottom:14px;}
-  .stat{
-    flex:1;
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:14px 10px;
-    text-align:center;
-  }
-  .stat .num{
-    font-family:'Space Mono',monospace;
-    font-size:22px;
-    font-weight:700;
-    color:var(--teal-deep);
-  }
-  .stat .lbl{font-size:11px;color:var(--ink-soft);margin-top:2px;}
-
-  .search{
-    width:100%;
-    padding:11px 14px;
-    border:1.5px solid var(--line);
-    border-radius:10px;
-    font-size:14px;
-    margin-bottom:12px;
-    font-family:inherit;
-    background:#fff;
-  }
-
-  .entry{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:14px 16px;
-    margin-bottom:10px;
-  }
-  .entry-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    margin-bottom:8px;
-  }
-  .entry-name{font-size:16px;font-weight:700;color:var(--ink);}
-  .entry-meta{font-size:11.5px;color:var(--ink-soft);font-family:'Space Mono',monospace;}
-  .entry-details{
-    display:flex;
-    gap:14px;
-    font-size:12.5px;
-    color:var(--ink-soft);
-    margin-bottom:10px;
-    flex-wrap:wrap;
-  }
-  .entry-details b{color:var(--ink);font-weight:600;}
-
-  .bmi-gauge{
-    position:relative;
-    height:8px;
-    border-radius:5px;
-    background:linear-gradient(to right,
-      #C9DDD8 0%, #C9DDD8 15%,
-      var(--teal-soft) 15%, var(--teal-soft) 45%,
-      var(--amber-soft) 45%, var(--amber-soft) 65%,
-      var(--coral-soft) 65%, var(--coral-soft) 100%);
-    margin:6px 0 4px;
-  }
-  .bmi-gauge .marker{
-    position:absolute;
-    top:-4px;
-    width:3px;
-    height:16px;
-    background:var(--ink);
-    border-radius:2px;
-    transform:translateX(-50%);
-  }
-  .bmi-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-soft);}
-  .bmi-value{
-    display:inline-block;
-    font-family:'Space Mono',monospace;
-    font-weight:700;
-    font-size:13px;
-    padding:2px 8px;
-    border-radius:6px;
-  }
-  .bmi-under{background:var(--teal-soft);color:var(--teal-deep);}
-  .bmi-normal{background:var(--teal-soft);color:var(--teal-deep);}
-  .bmi-over{background:var(--amber-soft);color:var(--amber);}
-  .bmi-obese{background:var(--coral-soft);color:var(--coral);}
-
-  .entry-actions{display:flex;gap:8px;margin-top:10px;}
-  .icon-btn{
-    flex:1;
-    padding:8px;
-    border-radius:8px;
-    border:1px solid var(--line);
-    background:#FBFAF8;
-    font-size:12px;
-    font-family:inherit;
-    color:var(--ink-soft);
-    cursor:pointer;
-  }
-  .icon-btn.del{color:var(--coral);}
-
-  .empty{
-    text-align:center;
-    padding:50px 20px;
-    color:var(--ink-soft);
-  }
-  .empty .glyph{font-size:34px;margin-bottom:10px;}
-  .empty p{font-size:13.5px;line-height:1.6;}
-
-  .toast{
-    position:fixed;
-    bottom:24px;
-    left:50%;
-    transform:translateX(-50%) translateY(20px);
-    background:var(--teal-deep);
-    color:#fff;
-    padding:12px 20px;
-    border-radius:30px;
-    font-size:13.5px;
-    opacity:0;
-    transition:all .25s ease;
-    pointer-events:none;
-    z-index:100;
-    white-space:nowrap;
-  }
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
-  .edu-chip{
-    display:inline-block;
-    font-size:11px;
-    padding:2px 8px;
-    border-radius:6px;
-    background:var(--teal-soft);
-    color:var(--teal-deep);
-    font-weight:600;
-  }
-
-  footer.note{
-    text-align:center;
-    font-size:10.5px;
-    color:var(--ink-soft);
-    padding:10px 20px 24px;
-  }
-</style>
-</head>
-<body>
-<div class="app">
-  <header>
-    <div class="eyebrow">COMMUNITY SCREENING · 社區篩檢</div>
-    <h1>篩檢登記系統</h1>
-    <div class="sub">姓名 · 年齡 · 身高體重 · 教育程度</div>
-  </header>
-
-  <nav class="tabs">
-    <button class="tab-btn active" data-tab="form">➕ 新增登記</button>
-    <button class="tab-btn" data-tab="list">📋 名單</button>
-    <button class="tab-btn" data-tab="stats">📊 統計</button>
-  </nav>
-
-  <main>
-    <!-- 新增表單 -->
-    <section class="panel active" id="panel-form">
-      <div class="card">
-        <div class="field">
-          <label>姓名</label>
-          <input type="text" id="f-name" placeholder="請輸入參與者姓名">
-        </div>
-        <div class="row2">
-          <div class="field">
-            <label>年齡</label>
-            <input type="number" id="f-age" placeholder="歲" min="0" max="120">
-          </div>
-          <div class="field">
-            <label>教育程度</label>
-            <select id="f-edu">
-              <option value="">請選擇</option>
-              <option>不識字</option>
-              <option>國小</option>
-              <option>國中</option>
-              <option>高中／高職</option>
-              <option>專科</option>
-              <option>大學</option>
-              <option>研究所以上</option>
-            </select>
-          </div>
-        </div>
-        <div class="row2">
-          <div class="field">
-            <label>身高 (cm)</label>
-            <input type="number" id="f-height" placeholder="例如 160" step="0.1">
-          </div>
-          <div class="field">
-            <label>體重 (kg)</label>
-            <input type="number" id="f-weight" placeholder="例如 58" step="0.1">
-          </div>
-        </div>
-        <div class="hint" id="bmi-preview"></div>
-      </div>
-      <button class="btn-primary" id="submit-btn">儲存並新增下一位</button>
-    </section>
-
-    <!-- 名單 -->
-    <section class="panel" id="panel-list">
-      <input class="search" id="search-box" placeholder="搜尋姓名...">
-      <div id="list-container"></div>
-    </section>
-
-    <!-- 統計 -->
-    <section class="panel" id="panel-stats">
-      <div class="summary-grid">
-        <div class="stat"><div class="num" id="stat-count">0</div><div class="lbl">已登記人數</div></div>
-        <div class="stat"><div class="num" id="stat-age">–</div><div class="lbl">平均年齡</div></div>
-        <div class="stat"><div class="num" id="stat-bmi">–</div><div class="lbl">平均 BMI</div></div>
-      </div>
-      <div class="card">
-        <label>BMI 分布</label>
-        <div id="bmi-dist"></div>
-      </div>
-      <div class="card">
-        <label>教育程度分布</label>
-        <div id="edu-dist"></div>
-      </div>
-      <button class="btn-primary" id="export-btn" style="margin-bottom:8px;">匯出 CSV（Excel／Notion 可用）</button>
-      <button class="btn-ghost" id="clear-btn">清除全部資料</button>
-    </section>
-  </main>
-
-  <footer class="note">⚠️ 這是共用名單：資料會即時寫入您的 Google 試算表，所有透過此連結進入的人共用同一份資料</footer>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-let entries = [];
-let editingId = null;
-
-function bmiOf(h, w){
-  if(!h || !w) return null;
-  const m = h / 100;
-  return w / (m*m);
-}
-function bmiCategory(bmi){
-  if(bmi === null) return {label:'—', cls:''};
-  if(bmi < 18.5) return {label:'過輕', cls:'bmi-under'};
-  if(bmi < 24) return {label:'正常', cls:'bmi-normal'};
-  if(bmi < 27) return {label:'過重', cls:'bmi-over'};
-  return {label:'肥胖', cls:'bmi-obese'};
-}
-function bmiMarkerPercent(bmi){
-  // gauge scale roughly 14 - 34
-  const min=14, max=34;
-  let pct = ((bmi-min)/(max-min))*100;
-  return Math.max(2, Math.min(98, pct));
+function doGet(e) {
+  var sheet = getSheet();
+  return respond(readAll(sheet));
 }
 
-// ⚠️ 部署 Google Apps Script 後，把取得的網址貼在這裡
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw65xaJVkLTN8kaF1Hq4sREjvLEe19dQtPpo7yICgSqMxBpGbrR43Xyz3LujPFHCzmF/exec';
+function doPost(e) {
+  var sheet = getSheet();
+  var payload = JSON.parse(e.postData.contents);
+  var action = payload.action;
 
-async function apiCall(payload){
-  // payload 為 null 時代表單純讀取（GET），否則以 POST 送出動作
-  if(!payload){
-    const res = await fetch(APPS_SCRIPT_URL);
-    if(!res.ok) throw new Error('load failed');
-    return res.json();
+  if (action === 'list') {
+    return respond(readAll(sheet));
   }
-  const res = await fetch(APPS_SCRIPT_URL, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'}, // 用 text/plain 避免瀏覽器 CORS 預檢請求
-    body: JSON.stringify(payload)
-  });
-  if(!res.ok) throw new Error('save failed');
-  return res.json();
+
+  if (action === 'upsert') {
+    var entry = payload.entry;
+    var data = readAll(sheet);
+    var idx = -1;
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i].id) === String(entry.id)) { idx = i; break; }
+    }
+    if (idx >= 0) {
+      writeRow(sheet, idx + 2, entry);
+    } else {
+      sheet.appendRow([entry.id, entry.name, entry.idnum, entry.phone, entry.birthdate, entry.age, entry.edu, entry.createdAt]);
+    }
+    return respond(readAll(sheet));
+  }
+
+  if (action === 'delete') {
+    var id = payload.id;
+    var data = readAll(sheet);
+    for (var j = 0; j < data.length; j++) {
+      if (String(data[j].id) === String(id)) {
+        sheet.deleteRow(j + 2);
+        break;
+      }
+    }
+    return respond(readAll(sheet));
+  }
+
+  if (action === 'clear') {
+    var lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      sheet.deleteRows(2, lastRow - 1);
+    }
+    return respond([]);
+  }
+
+  return respond({ error: 'unknown action' });
 }
 
-async function loadEntries(silent){
-  try{
-    entries = await apiCall(null);
-  }catch(e){
-    if(!silent) showToast('無法連線到 Google 試算表，請確認網址是否已設定');
-    entries = entries || [];
+function getSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Data');
+  var header = ['id', 'name', 'idnum', 'phone', 'birthdate', 'age', 'edu', 'createdAt'];
+  if (!sheet) {
+    sheet = ss.insertSheet('Data');
+    sheet.appendRow(header);
+    return sheet;
   }
-  renderList(document.getElementById('search-box')?.value || '');
-  renderStats();
+  // 若表頭跟目前欄位不一致（例如沿用舊版試算表），自動重設表頭
+  var headerRow = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  if (headerRow.indexOf('birthdate') === -1) {
+    sheet.getRange(1, 1, 1, header.length).setValues([header]);
+  }
+  return sheet;
 }
 
-async function upsertEntry(entry){
-  try{
-    entries = await apiCall({action:'upsert', entry});
-    return true;
-  }catch(e){
-    showToast('儲存失敗，請檢查網路連線或試算表網址');
-    return false;
+function readAll(sheet) {
+  var values = sheet.getDataRange().getValues();
+  var rows = values.slice(1);
+  var result = [];
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    if (!r[0]) continue;
+    result.push({
+      id: String(r[0]),
+      name: r[1],
+      idnum: r[2],
+      phone: r[3],
+      birthdate: r[4],
+      age: r[5],
+      edu: r[6],
+      createdAt: r[7]
+    });
   }
+  return result;
 }
 
-async function removeEntry(id){
-  try{
-    entries = await apiCall({action:'delete', id});
-    return true;
-  }catch(e){
-    showToast('刪除失敗，請檢查網路連線');
-    return false;
-  }
+function writeRow(sheet, rowIndex, entry) {
+  sheet.getRange(rowIndex, 1, 1, 8).setValues([[entry.id, entry.name, entry.idnum, entry.phone, entry.birthdate, entry.age, entry.edu, entry.createdAt]]);
 }
 
-async function clearAllEntries(){
-  try{
-    entries = await apiCall({action:'clear'});
-    return true;
-  }catch(e){
-    showToast('清除失敗，請檢查網路連線');
-    return false;
-  }
+function respond(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
-
-// 每 8 秒自動從試算表同步一次，讓多人同時登記時能看到彼此最新的資料
-setInterval(()=>loadEntries(true), 8000);
-
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 1800);
-}
-
-// Tabs
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
-    if(btn.dataset.tab==='list') renderList();
-    if(btn.dataset.tab==='stats') renderStats();
-  });
-});
-
-// Live BMI preview
-function updatePreview(){
-  const h = parseFloat(document.getElementById('f-height').value);
-  const w = parseFloat(document.getElementById('f-weight').value);
-  const el = document.getElementById('bmi-preview');
-  if(h && w){
-    const b = bmiOf(h,w);
-    const cat = bmiCategory(b);
-    el.innerHTML = `預估 BMI：<b>${b.toFixed(1)}</b>（${cat.label}）`;
-  } else {
-    el.innerHTML = '';
-  }
-}
-document.getElementById('f-height').addEventListener('input', updatePreview);
-document.getElementById('f-weight').addEventListener('input', updatePreview);
-
-// Submit
-document.getElementById('submit-btn').addEventListener('click', async ()=>{
-  const name = document.getElementById('f-name').value.trim();
-  const age = document.getElementById('f-age').value;
-  const edu = document.getElementById('f-edu').value;
-  const height = document.getElementById('f-height').value;
-  const weight = document.getElementById('f-weight').value;
-
-  if(!name){ showToast('請輸入姓名'); return; }
-  if(!age){ showToast('請輸入年齡'); return; }
-
-  const entry = {
-    id: editingId || (Date.now()+''+Math.floor(Math.random()*1000)),
-    name, age: Number(age), edu,
-    height: height?Number(height):null,
-    weight: weight?Number(weight):null,
-    createdAt: editingId ? (entries.find(e=>e.id===editingId)?.createdAt || Date.now()) : Date.now()
-  };
-
-  const wasEditing = !!editingId;
-  editingId = null;
-  document.getElementById('submit-btn').textContent = '儲存並新增下一位';
-
-  const ok = await upsertEntry(entry);
-  if(ok) showToast(wasEditing ? '已更新資料' : `已新增「${name}」`);
-
-  document.getElementById('f-name').value='';
-  document.getElementById('f-age').value='';
-  document.getElementById('f-edu').value='';
-  document.getElementById('f-height').value='';
-  document.getElementById('f-weight').value='';
-  document.getElementById('bmi-preview').innerHTML='';
-  renderList();
-  renderStats();
-});
-
-function renderList(filter=''){
-  const container = document.getElementById('list-container');
-  const list = entries.filter(e => e.name.includes(filter));
-  if(list.length===0){
-    container.innerHTML = `<div class="empty"><div class="glyph">🩺</div><p>${entries.length===0 ? '尚未登記任何參與者<br>切換到「新增登記」開始建檔' : '找不到符合的姓名'}</p></div>`;
-    return;
-  }
-  container.innerHTML = list.map(e=>{
-    const bmi = bmiOf(e.height, e.weight);
-    const cat = bmiCategory(bmi);
-    const date = new Date(e.createdAt);
-    const dateStr = `${date.getMonth()+1}/${date.getDate()} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
-    return `
-    <div class="entry">
-      <div class="entry-top">
-        <span class="entry-name">${e.name}</span>
-        <span class="entry-meta">${dateStr}</span>
-      </div>
-      <div class="entry-details">
-        <span><b>${e.age}</b> 歲</span>
-        ${e.edu ? `<span class="edu-chip">${e.edu}</span>` : ''}
-        ${e.height ? `<span>身高 <b>${e.height}</b> cm</span>` : ''}
-        ${e.weight ? `<span>體重 <b>${e.weight}</b> kg</span>` : ''}
-      </div>
-      ${bmi ? `
-      <span class="bmi-value ${cat.cls}">BMI ${bmi.toFixed(1)} · ${cat.label}</span>
-      <div class="bmi-gauge"><div class="marker" style="left:${bmiMarkerPercent(bmi)}%"></div></div>
-      <div class="bmi-labels"><span>過輕</span><span>正常</span><span>過重</span><span>肥胖</span></div>
-      ` : ''}
-      <div class="entry-actions">
-        <button class="icon-btn" onclick="editEntry('${e.id}')">✏️ 編輯</button>
-        <button class="icon-btn del" onclick="deleteEntry('${e.id}')">🗑 刪除</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-window.editEntry = function(id){
-  const e = entries.find(x=>x.id===id);
-  if(!e) return;
-  document.getElementById('f-name').value = e.name;
-  document.getElementById('f-age').value = e.age;
-  document.getElementById('f-edu').value = e.edu || '';
-  document.getElementById('f-height').value = e.height || '';
-  document.getElementById('f-weight').value = e.weight || '';
-  editingId = id;
-  document.getElementById('submit-btn').textContent = '更新這筆資料';
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelector('[data-tab="form"]').classList.add('active');
-  document.getElementById('panel-form').classList.add('active');
-  updatePreview();
-};
-
-window.deleteEntry = async function(id){
-  const ok = await removeEntry(id);
-  renderList(document.getElementById('search-box').value);
-  renderStats();
-  if(ok) showToast('已刪除該筆資料');
-};
-
-document.getElementById('search-box').addEventListener('input', (e)=>{
-  renderList(e.target.value);
-});
-
-function renderStats(){
-  document.getElementById('stat-count').textContent = entries.length;
-  if(entries.length===0){
-    document.getElementById('stat-age').textContent = '–';
-    document.getElementById('stat-bmi').textContent = '–';
-    document.getElementById('bmi-dist').innerHTML = '<span class="hint">尚無資料</span>';
-    document.getElementById('edu-dist').innerHTML = '<span class="hint">尚無資料</span>';
-    return;
-  }
-  const avgAge = entries.reduce((s,e)=>s+e.age,0)/entries.length;
-  document.getElementById('stat-age').textContent = avgAge.toFixed(1);
-
-  const bmis = entries.map(e=>bmiOf(e.height,e.weight)).filter(b=>b!==null);
-  if(bmis.length>0){
-    const avgBmi = bmis.reduce((s,b)=>s+b,0)/bmis.length;
-    document.getElementById('stat-bmi').textContent = avgBmi.toFixed(1);
-  } else {
-    document.getElementById('stat-bmi').textContent = '–';
-  }
-
-  const cats = {under:0, normal:0, over:0, obese:0};
-  bmis.forEach(b=>{
-    if(b<18.5) cats.under++;
-    else if(b<24) cats.normal++;
-    else if(b<27) cats.over++;
-    else cats.obese++;
-  });
-  const total = bmis.length || 1;
-  const distHtml = [
-    ['過輕', cats.under, 'bmi-under'],
-    ['正常', cats.normal, 'bmi-normal'],
-    ['過重', cats.over, 'bmi-over'],
-    ['肥胖', cats.obese, 'bmi-obese'],
-  ].map(([label,count,cls])=>{
-    const pct = Math.round(count/total*100);
-    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12.5px;">
-      <span style="width:38px;">${label}</span>
-      <div style="flex:1;height:10px;background:#EFECE4;border-radius:6px;overflow:hidden;">
-        <div style="width:${pct}%;height:100%;" class="${cls}"></div>
-      </div>
-      <span style="width:44px;text-align:right;color:var(--ink-soft);">${count} 人</span>
-    </div>`;
-  }).join('');
-  document.getElementById('bmi-dist').innerHTML = distHtml || '<span class="hint">尚無身高體重資料</span>';
-
-  const eduCounts = {};
-  entries.forEach(e=>{
-    const k = e.edu || '未填寫';
-    eduCounts[k] = (eduCounts[k]||0)+1;
-  });
-  const eduHtml = Object.entries(eduCounts).map(([k,v])=>{
-    const pct = Math.round(v/entries.length*100);
-    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12.5px;">
-      <span style="width:76px;">${k}</span>
-      <div style="flex:1;height:10px;background:#EFECE4;border-radius:6px;overflow:hidden;">
-        <div style="width:${pct}%;height:100%;background:var(--teal);"></div>
-      </div>
-      <span style="width:44px;text-align:right;color:var(--ink-soft);">${v} 人</span>
-    </div>`;
-  }).join('');
-  document.getElementById('edu-dist').innerHTML = eduHtml;
-}
-
-document.getElementById('export-btn').addEventListener('click', ()=>{
-  if(entries.length===0){ showToast('目前沒有資料可匯出'); return; }
-  const header = ['姓名','年齡','教育程度','身高(cm)','體重(kg)','BMI','BMI分類','登記時間'];
-  const rows = entries.map(e=>{
-    const bmi = bmiOf(e.height,e.weight);
-    const cat = bmiCategory(bmi);
-    const date = new Date(e.createdAt);
-    const dateStr = date.toLocaleString('zh-TW');
-    return [e.name, e.age, e.edu||'', e.height||'', e.weight||'', bmi?bmi.toFixed(1):'', bmi?cat.label:'', dateStr];
-  });
-  const csv = '\uFEFF' + [header, ...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `社區篩檢名單_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('已匯出 CSV 檔案');
-});
-
-document.getElementById('clear-btn').addEventListener('click', async ()=>{
-  if(entries.length===0) return;
-  if(confirm(`確定要清除全部 ${entries.length} 筆資料嗎？此動作無法復原。`)){
-    const ok = await clearAllEntries();
-    renderList();
-    renderStats();
-    if(ok) showToast('已清除全部資料');
-  }
-});
-
-loadEntries();
-</script>
-</body>
-</html>
